@@ -192,17 +192,48 @@ export async function batchGenerateSummaries(texts: string[]): Promise<string[]>
   return results;
 }
 
+const LANGUAGE_CODES: Record<string, string> = {
+  Hindi: "hi",
+  Spanish: "es",
+  French: "fr",
+  German: "de",
+  Arabic: "ar",
+  Chinese: "zh",
+  Russian: "ru",
+  Punjabi: "pa",
+  Japanese: "ja",
+  English: "en",
+  Portuguese: "pt",
+  Italian: "it",
+  Korean: "ko",
+  Turkish: "tr",
+  Dutch: "nl",
+};
+
 export async function translateText(text: string, targetLanguage: string): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    max_tokens: 500,
-    messages: [
-      {
-        role: "system",
-        content: `Translate the following text to ${targetLanguage}. Return only the translated text, no explanations.`,
-      },
-      { role: "user", content: text.substring(0, 1000) },
-    ],
-  });
-  return response.choices[0]?.message?.content?.trim() ?? text;
+  const langCode = LANGUAGE_CODES[targetLanguage];
+  if (!langCode || langCode === "en") return text;
+
+  const truncated = text.substring(0, 500);
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(truncated)}&langpair=en|${langCode}`;
+
+  const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(`Translation API error: ${res.status}`);
+
+  const data = (await res.json()) as {
+    responseStatus: number;
+    responseData?: { translatedText?: string };
+    matches?: Array<{ translation?: string; quality?: number }>;
+  };
+
+  if (data.responseStatus !== 200) {
+    throw new Error(`Translation failed: ${data.responseStatus}`);
+  }
+
+  const translated = data.responseData?.translatedText;
+  if (!translated || translated.toUpperCase() === truncated.toUpperCase()) {
+    throw new Error("Translation returned unchanged text");
+  }
+
+  return translated;
 }
