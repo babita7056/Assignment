@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Passport Social Media Scraper Dashboard API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: posts
+    description: Social media posts
+  - name: stats
+    description: Dashboard statistics
 paths:
   /healthz:
     get:
@@ -24,6 +28,224 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /posts:
+    get:
+      operationId: listPosts
+      tags: [posts]
+      summary: List posts with filters
+      parameters:
+        - name: platform
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: sentiment
+          in: query
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+        - name: clustered
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostListResponse"
+
+  /posts/refresh:
+    post:
+      operationId: refreshPosts
+      tags: [posts]
+      summary: Trigger re-scrape of social media
+      responses:
+        "200":
+          description: Refresh started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshStatus"
+
+  /posts/export:
+    get:
+      operationId: exportPosts
+      tags: [posts]
+      summary: Export posts to CSV or PDF
+      parameters:
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [csv, pdf]
+        - name: platform
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: sentiment
+          in: query
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File download
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /posts/{id}/translate:
+    post:
+      operationId: translatePost
+      tags: [posts]
+      summary: Translate a post to a target language
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranslateInput"
+      responses:
+        "200":
+          description: Translated post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranslationResult"
+
+  /stats:
+    get:
+      operationId: getDashboardStats
+      tags: [stats]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /stats/platforms:
+    get:
+      operationId: getPlatformBreakdown
+      tags: [stats]
+      summary: Get post counts by platform
+      responses:
+        "200":
+          description: Platform breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlatformStat"
+
+  /stats/categories:
+    get:
+      operationId: getCategoryBreakdown
+      tags: [stats]
+      summary: Get post counts by category
+      responses:
+        "200":
+          description: Category breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryStat"
+
+  /stats/sentiment:
+    get:
+      operationId: getSentimentBreakdown
+      tags: [stats]
+      summary: Get post counts by sentiment
+      responses:
+        "200":
+          description: Sentiment breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SentimentStat"
+
+  /stats/timeline:
+    get:
+      operationId: getTimeline
+      tags: [stats]
+      summary: Get post volume over time (last 24h)
+      responses:
+        "200":
+          description: Timeline data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimelinePoint"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +256,197 @@ components:
       required:
         - status
 
+    SocialPost:
+      type: object
+      required:
+        - id
+        - platform
+        - content
+        - author
+        - publishedAt
+        - category
+        - sentiment
+        - language
+        - region
+        - engagement
+        - summary
+        - isGibberish
+        - clusterId
+      properties:
+        id:
+          type: string
+        platform:
+          type: string
+        content:
+          type: string
+        translatedContent:
+          type: ["string", "null"]
+        translatedLanguage:
+          type: ["string", "null"]
+        author:
+          type: string
+        authorHandle:
+          type: string
+        publishedAt:
+          type: string
+        category:
+          type: string
+        sentiment:
+          type: string
+        sentimentScore:
+          type: number
+        language:
+          type: string
+        region:
+          type: string
+        engagement:
+          type: integer
+        likes:
+          type: integer
+        shares:
+          type: integer
+        comments:
+          type: integer
+        summary:
+          type: string
+        isGibberish:
+          type: boolean
+        clusterId:
+          type: ["string", "null"]
+        clusterSize:
+          type: integer
+        url:
+          type: ["string", "null"]
+        mediaUrl:
+          type: ["string", "null"]
+
+    PostListResponse:
+      type: object
+      required:
+        - posts
+        - total
+        - page
+        - limit
+      properties:
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SocialPost"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+
+    TranslateInput:
+      type: object
+      required:
+        - targetLanguage
+      properties:
+        targetLanguage:
+          type: string
+
+    TranslationResult:
+      type: object
+      required:
+        - id
+        - translatedContent
+        - targetLanguage
+      properties:
+        id:
+          type: string
+        translatedContent:
+          type: string
+        targetLanguage:
+          type: string
+
+    RefreshStatus:
+      type: object
+      required:
+        - message
+        - postCount
+      properties:
+        message:
+          type: string
+        postCount:
+          type: integer
+        lastRefreshed:
+          type: string
+
+    DashboardStats:
+      type: object
+      required:
+        - totalPosts
+        - postsLast24h
+        - platforms
+        - topCategory
+        - topSentiment
+        - avgEngagement
+        - filteredCount
+        - lastRefreshed
+      properties:
+        totalPosts:
+          type: integer
+        postsLast24h:
+          type: integer
+        platforms:
+          type: integer
+        topCategory:
+          type: string
+        topSentiment:
+          type: string
+        avgEngagement:
+          type: number
+        filteredCount:
+          type: integer
+        lastRefreshed:
+          type: string
+
+    PlatformStat:
+      type: object
+      required:
+        - platform
+        - count
+      properties:
+        platform:
+          type: string
+        count:
+          type: integer
+        engagement:
+          type: integer
+
+    CategoryStat:
+      type: object
+      required:
+        - category
+        - count
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+
+    SentimentStat:
+      type: object
+      required:
+        - sentiment
+        - count
+      properties:
+        sentiment:
+          type: string
+        count:
+          type: integer
+
+    TimelinePoint:
+      type: object
+      required:
+        - hour
+        - count
+      properties:
+        hour:
+          type: string
+        count:
+          type: integer
