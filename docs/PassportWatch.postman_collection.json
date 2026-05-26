@@ -1,0 +1,364 @@
+{
+  "info": {
+    "name": "PassportWatch API",
+    "description": "Complete API collection for the PassportWatch social media intelligence dashboard.\n\nSet the `baseUrl` variable to your server URL before running.\n\n**Dev:** http://localhost:8080\n**Production:** https://9623aeee-292a-451c-818e-5e1e7c42ea75-00-jvdb1njfog3p.sisko.replit.dev",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "postId",
+      "value": "",
+      "type": "string",
+      "description": "Set this after running 'List Posts' — copy an id value here"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/healthz",
+            "description": "Returns { status: 'ok' } when the server is running."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"status\":\"ok\"}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "List Posts (default)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Returns the 20 most recent posts."
+          }
+        },
+        {
+          "name": "List Posts — filter by platform",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?platform=Reddit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"],
+              "query": [
+                { "key": "platform", "value": "Reddit" }
+              ]
+            },
+            "description": "Platforms: Twitter/X, Reddit, LinkedIn, Facebook, Instagram, YouTube, TikTok"
+          }
+        },
+        {
+          "name": "List Posts — filter by category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?category=Tatkal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"],
+              "query": [
+                { "key": "category", "value": "Tatkal" }
+              ]
+            },
+            "description": "Categories: Application, Renewal, Appointments, Tatkal, Visa, Travel Issues, Government Announcements, Scams/Fraud, News, Personal Experiences"
+          }
+        },
+        {
+          "name": "List Posts — filter by sentiment",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?sentiment=negative",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"],
+              "query": [
+                { "key": "sentiment", "value": "negative" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Posts — search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?search=tatkal&sentiment=positive",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"],
+              "query": [
+                { "key": "search", "value": "tatkal" },
+                { "key": "sentiment", "value": "positive" }
+              ]
+            },
+            "description": "Full-text search across post content, summary, and translated content."
+          }
+        },
+        {
+          "name": "List Posts — cluster view, most engaged",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?clustered=true&sortBy=engagement&sortOrder=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"],
+              "query": [
+                { "key": "clustered", "value": "true" },
+                { "key": "sortBy", "value": "engagement" },
+                { "key": "sortOrder", "value": "desc" }
+              ]
+            },
+            "description": "Returns one representative post per topic cluster, sorted by engagement."
+          }
+        },
+        {
+          "name": "List Posts — paginated",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?page=2&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"],
+              "query": [
+                { "key": "page", "value": "2" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh / Scrape",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "refresh"]
+            },
+            "description": "Triggers a new scrape in the background. Returns immediately. Scrape takes 30–60 seconds. Poll /api/stats to detect completion."
+          },
+          "response": [
+            {
+              "name": "Scrape triggered",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"message\":\"Scrape started. Fresh data will be available shortly.\",\"postCount\":60,\"lastRefreshed\":\"2026-05-26T16:09:25.565Z\"}"
+            }
+          ]
+        },
+        {
+          "name": "Export — CSV",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/export?format=csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "export"],
+              "query": [
+                { "key": "format", "value": "csv" }
+              ]
+            },
+            "description": "Downloads all posts as a CSV file. Supports the same filter params as GET /api/posts."
+          }
+        },
+        {
+          "name": "Export — HTML Report",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/export?format=pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "export"],
+              "query": [
+                { "key": "format", "value": "pdf" }
+              ]
+            },
+            "description": "Downloads a styled HTML intelligence report. Open in browser and print to PDF."
+          }
+        },
+        {
+          "name": "Export — Negative sentiment CSV",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/export?format=csv&sentiment=negative",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "export"],
+              "query": [
+                { "key": "format", "value": "csv" },
+                { "key": "sentiment", "value": "negative" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Translate Post — Hindi",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/{{postId}}/translate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "{{postId}}", "translate"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetLanguage\": \"Hindi\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Translates the post content to Hindi using the free MyMemory API. Result is cached in the database.\n\nFirst run 'List Posts', copy a post id into the {{postId}} variable, then run this request.\n\nSupported languages: Hindi, Spanish, French, German, Arabic, Chinese, Russian, Punjabi, Japanese, Portuguese, Italian, Korean, Turkish, Dutch"
+          },
+          "response": [
+            {
+              "name": "Translated",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"id\":\"CC19MiqeYcI6xLppHhwyC\",\"translatedContent\":\"मेरी नियुक्ति के दौरान पीएसके कर्मचारी अविश्वसनीय रूप से अशिष्ट थे...\",\"targetLanguage\":\"Hindi\"}"
+            }
+          ]
+        },
+        {
+          "name": "Translate Post — Spanish",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/{{postId}}/translate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "{{postId}}", "translate"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetLanguage\": \"Spanish\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Translate Post — Arabic",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/{{postId}}/translate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "{{postId}}", "translate"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetLanguage\": \"Arabic\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats"]
+            },
+            "description": "Returns KPI summary: total posts, 24h count, platform count, top category, top sentiment, avg engagement, last refresh time."
+          },
+          "response": [
+            {
+              "name": "Example",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"totalPosts\":60,\"postsLast24h\":56,\"platforms\":6,\"topCategory\":\"Personal Experiences\",\"topSentiment\":\"negative\",\"avgEngagement\":3122,\"filteredCount\":60,\"lastRefreshed\":\"2026-05-26T16:09:25.565Z\"}"
+            }
+          ]
+        },
+        {
+          "name": "Platform Breakdown",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/platforms",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "platforms"]
+            },
+            "description": "Post count and total engagement per platform, sorted by post count descending."
+          },
+          "response": [
+            {
+              "name": "Example",
+              "status": "OK",
+              "code": 200,
+              "body": "[{\"platform\":\"Facebook\",\"count\":14,\"engagement\":47312},{\"platform\":\"YouTube\",\"count\":12,\"engagement\":33886},{\"platform\":\"TikTok\",\"count\":10,\"engagement\":38764}]"
+            }
+          ]
+        },
+        {
+          "name": "Category Breakdown",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "categories"]
+            },
+            "description": "Post count per NLP category, sorted by count descending."
+          }
+        },
+        {
+          "name": "Sentiment Breakdown",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/sentiment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "sentiment"]
+            },
+            "description": "Post count per sentiment (positive / negative / neutral)."
+          }
+        },
+        {
+          "name": "Timeline (hourly volume)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/timeline",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "timeline"]
+            },
+            "description": "Hourly post volume for the last 24 hours, sorted chronologically. Used to power the line chart on the dashboard."
+          }
+        }
+      ]
+    }
+  ]
+}

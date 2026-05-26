@@ -1,0 +1,20 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Sfe-Ol4_WvnK8DadxoBa_"
+uri = "file://docs/PassportWatch.postman_collection.json"
+type = "unspecified"
+title = "Postman Collection"
+
+[[outputs]]
+id = "hQssCDJgD81YGcKYVLAje"
+uri = "file://docs/API.md"
+type = "text"
+title = "API Documentation"
+
+[[outputs]]
+id = "y7w8rjoa7YTZ51Fl6GbVN"
+uri = "file://README.md"
+type = "text"
+title = "README"
