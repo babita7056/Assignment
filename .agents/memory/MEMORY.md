@@ -1,0 +1,1 @@
+- [PassportWatch architecture](passportwatch-arch.md) — contract-first API, background scrape, NLP pipeline, on-demand translate; seed via POST /api/posts/refresh after DB reset
