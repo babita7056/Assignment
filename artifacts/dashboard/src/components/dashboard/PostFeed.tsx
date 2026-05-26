@@ -94,7 +94,7 @@ function PostCard({ post }: { post: Post }) {
       return;
     }
     translateMutation.mutate(
-      { params: { id: post.id }, data: { targetLanguage } },
+      { id: post.id, data: { targetLanguage } },
       {
         onSuccess: (data) => {
           setLocalTranslation({ text: data.translatedContent, lang: data.targetLanguage });
