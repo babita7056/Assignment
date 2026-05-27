@@ -2,7 +2,7 @@
 
 > A real-time social media intelligence dashboard for tracking, analysing, and translating passport-related discussions across 7 platforms.
 
-**Live Demo:** https://9623aeee-292a-451c-818e-5e1e7c42ea75-00-jvdb1njfog3p.sisko.replit.dev
+**Live Demo:**   https://social-feed-aggregator--babitatomar1506.replit.app/
 
 ---
 
